@@ -1,4 +1,6 @@
-Matasano-Crypto-Challenges
+Matasano Crypto Challenges
 ==========================
 
-http://cryptopals.com/
+Solutions to the crypto challenge: http://cryptopals.com/
+
+The solutions require [pycrypto](www.pycrypto.org). I had to install this manually using ```python instal setup.py``` inside a virtualenv.
