@@ -1,0 +1,5 @@
+venv/
+*.pyc
+*.tar.gz
+pycrypto*/
+
