@@ -155,6 +155,15 @@ def c10():
         plain = crypto.decrypt_AES_CBC(cipher, key)
         print(plain)
 
+@challenge(11)
+def c11():
+    cipher = crypto.encrypt_ECB_or_CBC
+    result = crypto.detect_ECB(cipher)
+    if result:
+        print('Cipher used ECB')
+    else:
+        print('Cipher used CBC')
+
 
 # Run the crypto challenges
 if __name__ == '__main__':

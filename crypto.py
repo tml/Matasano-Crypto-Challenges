@@ -6,6 +6,7 @@ import binascii
 from itertools import cycle, starmap, product
 import textutils
 import string
+import random
 
 from Crypto.Cipher import AES
 
@@ -150,4 +151,67 @@ def decrypt_AES_CBC(cipher, key, IV=bytes(16)):
         plain.append(xor)
     return b''.join(plain)
 
+def encrypt_AES_CBC(plain, key, IV=bytes(16)):
+    '''
+    Encrypt a plaintext using AES CBC mode.
+    '''
+    if int(len(plain) / 16) != len(plain)/16:
+        raise ValueError('Plaintext must be a multiple of blocks of length 16')
+    cipher = []
+    blocks = [plain[i*16:(i+1)*16] for i in range(int(len(plain)/16))]
+    for i in range(int(len(plain)/16)):
+        xor = fixed_xor(blocks[i], cipher[i-1]) if i > 0 else fixed_xor(blocks[i], IV)
+        encrypt = encrypt_AES_ECB(xor, key)
+        cipher.append(encrypt)
+    return b''.join(cipher)
+
+
+def random_AES_key():
+    '''
+    Generate 16 random bytes
+    '''
+    key = [random.randint(0,255).to_bytes(1, byteorder='big') for i in range(16)]
+    return b''.join(key)
+
+def encrypt_ECB_or_CBC(plain):
+    '''
+    Encrypt the plaintext using EBC or CBC under a random key and random IV.
+    Flip a coin to determine which was used.
+    Append and prepend 5 to 10 bytes (count chosen randomly) to the plaintext.
+    '''
+    # Make the random choices
+    random_key = random_AES_key()
+    random_IV = random_AES_key()
+    choice = bool(random.randrange(2))
+    # Append 5 - 10 bytes
+    n = random.randint(5,10)
+    plain = b''.join([random.randint(0,255).to_bytes(1,byteorder='big') for i in range(n)]) + plain
+    # Prepend 5 - 10 bytes
+    n = random.randint(5,10)
+    plain = plain + b''.join([random.randint(0,255).to_bytes(1,byteorder='big') for i in range(n)])
+    # Split into blocks and pad the last block
+    plain = [plain[i*16:(i+1)*16] for i in range(int(len(plain)/16))]
+    plain[-1] = pad_PKCS7(plain[-1], block_length=16)
+    # Reform the blocks
+    plain = b''.join(plain)
+    if choice:
+        # Encrypt CBC
+        print('(Secretly chose CBC)')
+        cipher = encrypt_AES_CBC(plain, random_key, random_IV)
+    else:
+         #Encrypt ECB
+         print('(Secretly chose ECB)')
+         cipher = encrypt_AES_ECB(plain, random_key)
+    return cipher
+
+def detect_ECB(cipher):
+    '''
+    Given a cipher, determine if using ECB mode or CBC mode.
+    Return True if ECB, False otherwise.
+    Do this by encrypting a plaintext which will result in a repeading block.
+    If there are two blocks, then the cipher used ECB mode.
+    '''
+    plaintext = str_to_bytes('A' * 50)
+    ciphertext = cipher(plaintext)
+    return repeated_block(ciphertext)
 
