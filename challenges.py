@@ -125,7 +125,7 @@ def c7():
         cipher = f.read()
         cipher = crypto.base64_to_bytes(cipher)
         key = crypto.str_to_bytes(KEY)
-        plain = crypto.decode_AES_ECB(cipher, key)
+        plain = crypto.decrypt_AES_ECB(cipher, key)
         print('Plain: {0}'.format(plain.decode('utf-8')))
 
 @challenge(8)

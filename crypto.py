@@ -99,7 +99,7 @@ def brute_xor_key(cipher, keysize):
     return ''.join(map(chr,key))
 
 
-def decode_AES_ECB(cipher, key):
+def decrypt_AES_ECB(cipher, key):
     obj = AES.new(key, AES.MODE_ECB)
     return obj.decrypt(cipher)
 
