@@ -114,3 +114,17 @@ def repeated_block(text):
         return True
     return False
 
+
+def pad_PKCS7(block, block_length=20):
+    '''
+    Pad the block to the block_length, with each element in the padding
+    equal to the number of padded bytes. I.e. 4 padding bytes would be \x04
+    '''
+    if len(block) > block_length:
+        raise ValueError('PKCS7: block length is greater than wanted block size')
+
+    padding = block_length - len(block)
+    for i in range(padding):
+        block += padding.to_bytes(1, byteorder='big')
+    return block
+

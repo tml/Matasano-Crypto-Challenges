@@ -135,6 +135,18 @@ def c8():
             print('Repeated block in {0}'.format(line))
 
 
+# Set 2
+
+@challenge(9)
+def c9():
+    INPUT_BLOCK = 'YELLOW SUBMARINE'
+    OUTPUT_BLOCK = b'YELLOW SUBMARINE\x04\x04\x04\x04'
+    result = crypto.pad_PKCS7(crypto.str_to_bytes(INPUT_BLOCK), block_length=20)
+    print(result)
+    expect(result, OUTPUT_BLOCK)
+
+
+
 
 # Run the crypto challenges
 if __name__ == '__main__':
