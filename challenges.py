@@ -164,6 +164,19 @@ def c11():
     else:
         print('Cipher used CBC')
 
+@challenge(12)
+def c12():
+    # Find block size
+    length = crypto.detect_cipher_block_size(crypto.encrypt_append_secret_ECB)
+    print('Determined block size to be {0}.'.format(length))
+
+    # Check the cipher uses ECB mode
+    ecb = crypto.detect_ECB(crypto.encrypt_append_secret_ECB)
+    if ecb:
+        print('The cipher uses ECB mode')
+    else:
+        raise ValueError('The cipher does not use ECB mode')
+
 
 # Run the crypto challenges
 if __name__ == '__main__':

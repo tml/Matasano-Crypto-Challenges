@@ -7,6 +7,7 @@ from itertools import cycle, starmap, product
 import textutils
 import string
 import random
+import math
 
 from Crypto.Cipher import AES
 
@@ -214,4 +215,36 @@ def detect_ECB(cipher):
     plaintext = str_to_bytes('A' * 50)
     ciphertext = cipher(plaintext)
     return repeated_block(ciphertext)
+
+
+encrypt_append_secret_ECB_key = None
+def encrypt_append_secret_ECB(plain):
+    '''
+    Append a string to your plaintext and encrypt under a fixed key
+    using AES ECB mode.
+    '''
+    # Make the random key if we haven't already made it
+    global encrypt_append_secret_ECB_key
+    if not encrypt_append_secret_ECB_key:
+        encrypt_append_secret_ECB_key = random_AES_key()
+    # Append the secret
+    secret = 'Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkgaGFpciBjYW4gYmxvdwpUaGUgZ2lybGllcyBvbiBzdGFuZGJ5IHdhdmluZyBqdXN0IHRvIHNheSBoaQpEaWQgeW91IHN0b3A/IE5vLCBJIGp1c3QgZHJvdmUgYnkK'
+    plain += base64_to_bytes(secret)
+    # Pad if needs be
+    num_blocks = math.ceil(len(plain) / 16)
+    plain = pad_PKCS7(plain, 16 * num_blocks)
+    # Encrypt
+    return encrypt_AES_ECB(plain, encrypt_append_secret_ECB_key)
+
+def detect_cipher_block_size(cipher):
+    '''
+    Send increasing length strings to cipher. When the cipher length changes,
+    the difference between them is the block length.
+    '''
+    length = len(cipher(str_to_bytes('A')))
+    for i in range(50):
+        new_length = len(cipher(str_to_bytes('A' * i)))
+        if new_length != length:
+            return new_length - length
+    raise RuntimeError('Could not determine block size')
 
