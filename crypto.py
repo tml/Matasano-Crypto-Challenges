@@ -103,6 +103,10 @@ def decrypt_AES_ECB(cipher, key):
     obj = AES.new(key, AES.MODE_ECB)
     return obj.decrypt(cipher)
 
+def encrypt_AES_ECB(cipher, key):
+    obj = AES.new(key, AES.MODE_ECB)
+    return obj.encrypt(cipher)
+
 def repeated_block(text):
     '''
     Detect ECB mode. If the text has a repeated block, it means
@@ -127,4 +131,23 @@ def pad_PKCS7(block, block_length=20):
     for i in range(padding):
         block += padding.to_bytes(1, byteorder='big')
     return block
+
+
+def decrypt_AES_CBC(cipher, key, IV=bytes(16)):
+    '''
+    Decrypt a ciphertext using AES CBC using the AES ECB mode.
+    Assume an IV of zero if one is not given.
+    The previous ciphertext block is XOR'd with the result of the
+    block cipher to give the plaintext.
+    '''
+    if int(len(cipher) / 16) != len(cipher)/16:
+        raise ValueError('Cipher must be a multiple of blocks of length 16')
+    plain = []
+    blocks = [cipher[i*16:(i+1)*16] for i in range(int(len(cipher)/16))]
+    for i in range(int(len(cipher) / 16)):
+        decrypt = decrypt_AES_ECB(blocks[i], key)
+        xor = fixed_xor(decrypt, blocks[i-1]) if i > 0 else fixed_xor(decrypt, IV)
+        plain.append(xor)
+    return b''.join(plain)
+
 

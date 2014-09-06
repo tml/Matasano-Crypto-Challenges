@@ -145,7 +145,15 @@ def c9():
     print(result)
     expect(result, OUTPUT_BLOCK)
 
-
+@challenge(10)
+def c10():
+    INPUT_KEY = 'YELLOW SUBMARINE'
+    with open('inputs/10.txt') as f:
+        cipher = f.read()
+        cipher = crypto.base64_to_bytes(cipher)
+        key = crypto.str_to_bytes(INPUT_KEY)
+        plain = crypto.decrypt_AES_CBC(cipher, key)
+        print(plain)
 
 
 # Run the crypto challenges
