@@ -177,6 +177,27 @@ def c12():
     else:
         raise ValueError('The cipher does not use ECB mode')
 
+    # Find number of blocks to crack for the secret
+    num_blocks = int(len(crypto.encrypt_append_secret_ECB(b'')) / length)
+    print ('There are {0} blocks to crack'.format(num_blocks))
+
+    print('Finding the secret...')
+    print()
+    secret = bytes(0)
+    for j in range(num_blocks):
+        for i in range(length):
+            block = {}
+            for b in range(0, 255):
+                plain = crypto.str_to_bytes('A' * (length - (i + 1))) + secret + b.to_bytes(1, byteorder='big')
+                block[b] = crypto.encrypt_append_secret_ECB(plain)[j*length:(j+1)*length]
+            match = crypto.encrypt_append_secret_ECB(b'A' * (length - (i + 1)))[j*length:(j+1)*length]
+            byte = [k for k,v in block.items() if v == match]
+            if not byte:
+                # Done - or failed to find a match (i.e padding)
+                break
+            secret += byte[0].to_bytes(1, byteorder='big')
+    print(secret.decode())
+
 
 # Run the crypto challenges
 if __name__ == '__main__':
