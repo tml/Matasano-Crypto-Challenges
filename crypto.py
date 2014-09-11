@@ -134,6 +134,13 @@ def pad_PKCS7(block, block_length=20):
         block += padding.to_bytes(1, byteorder='big')
     return block
 
+def plaintext_pad_PKCS7(plain, block_length=16):
+    '''
+    Pad the plaintext to a block of 16.
+    '''
+    num_blocks = math.ceil(len(plain) / 16)
+    return pad_PKCS7(plain, block_length=num_blocks*block_length)
+
 
 def decrypt_AES_CBC(cipher, key, IV=bytes(16)):
     '''

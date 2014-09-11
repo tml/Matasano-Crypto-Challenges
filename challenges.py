@@ -4,6 +4,7 @@
 import sys
 import crypto
 import textutils
+import profile
 
 # Define a decorator to register the function as a challenge
 challenges = {}
@@ -197,6 +198,35 @@ def c12():
                 break
             secret += byte[0].to_bytes(1, byteorder='big')
     print(secret.decode())
+
+@challenge(13)
+def c13():
+    KV_EXAMPLE_INPUT = 'foo=bar&baz=qux&zap=zazzle'
+    p = profile.parse(KV_EXAMPLE_INPUT)
+    print('Turning string "{0}" into "{1}"'.format(KV_EXAMPLE_INPUT, p))
+
+    EXAMPLE_EMAIL = 'foo@bar.com'
+    p = profile.profile_for(EXAMPLE_EMAIL)
+    print('Profile for "{0}" is "{1}"'.format(EXAMPLE_EMAIL, p))
+    print('Encoded as {0}'.format(p.encode()))
+    print()
+
+    EXAMPLE_EMAIL = 'foo@bar.com&role=admin'
+    p = profile.profile_for(EXAMPLE_EMAIL)
+    print('Profile for "{0}" is "{1}"'.format(EXAMPLE_EMAIL, p))
+    print('Encoded as {0}'.format(p.encode()))
+    print()
+
+    # Make a role=admin profile
+    basis = profile.profile_for('foo@bar.com')
+    print('Made a profile for "foo@bar.com": {0}'.format(basis))
+    c = profile.encrypt(basis.encode())
+    print('encrypted as {0}'.format(c))
+    admin = profile.encrypt('&role=admin')
+    print('Ciphertext for "&role=admin" is {0}'.format(admin))
+    print('Concat the ciphers together, so role will be reassigned in parseing:')
+    p = profile.decrypt(c+admin)
+    print(p)
 
 
 # Run the crypto challenges
