@@ -11,10 +11,7 @@ class Profile:
         Return the k=v encoding of the profile object.
         Deliminator is the & character
         '''
-        r = ''
-        for k,v in vars(self).items():
-            r += k + '=' + str(v) + '&'
-        return r[:-1]
+        return 'email=' + self.email + '&uid=' + str(self.uid) + '&role=' + self.role
 
     def __repr__(self):
         '''
@@ -35,8 +32,9 @@ def parse(string):
     items = string.split('&')
     p = Profile()
     for pair in items:
-        k, v = pair.split('=')
-        setattr(p, k, v)
+        if '=' in pair:
+            k, v = pair.split('=')
+            setattr(p, k, v)
     return p
 
 def profile_for(email):
@@ -76,5 +74,7 @@ def decrypt(cipher):
     # Crudely remove any padding
     plain=plain.decode()
     plain = ''.join(filter(string.printable.__contains__, str(plain)))
+
+    print('About to parse {0}'.format(plain))
 
     return parse(plain)

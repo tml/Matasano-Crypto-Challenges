@@ -201,6 +201,7 @@ def c12():
 
 @challenge(13)
 def c13():
+    # Check the profile functions are working correctly
     KV_EXAMPLE_INPUT = 'foo=bar&baz=qux&zap=zazzle'
     p = profile.parse(KV_EXAMPLE_INPUT)
     print('Turning string "{0}" into "{1}"'.format(KV_EXAMPLE_INPUT, p))
@@ -217,15 +218,21 @@ def c13():
     print('Encoded as {0}'.format(p.encode()))
     print()
 
-    # Make a role=admin profile
-    basis = profile.profile_for('foo@bar.com')
-    print('Made a profile for "foo@bar.com": {0}'.format(basis))
-    c = profile.encrypt(basis.encode())
-    print('encrypted as {0}'.format(c))
-    admin = profile.encrypt('&role=admin')
-    print('Ciphertext for "&role=admin" is {0}'.format(admin))
-    print('Concat the ciphers together, so role will be reassigned in parseing:')
-    p = profile.decrypt(c+admin)
+    # Task: Make a role=admin profile using only profile_for to generate ciphertexts and the ciphertexts
+    print('Made a profile for "foo99@bar.com":')
+    # This email will make 'role=' appear at the end of a block
+    basis_cipher  = profile.encrypt(profile.profile_for('foo99@bar.com').encode())
+
+    # Pad the word 'admin' so it appears at a beginning of a block
+    attack_email = 'A' * 10 + 'admin'
+    print('Make a profile for "{0}"'.format(attack_email))
+    attack_profile = profile.profile_for(attack_email)
+    attack_cipher = profile.encrypt(attack_profile.encode())
+
+    # Use the first two blocks of the foo99&bar.com cipher and the second block
+    # of the attack cipher.
+    p = profile.decrypt(basis_cipher[:32] + attack_cipher[16:32])
+    print('Made the profile:')
     print(p)
 
 
